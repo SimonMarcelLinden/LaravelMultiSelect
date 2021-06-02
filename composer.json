@@ -1,0 +1,41 @@
+{
+    "name": "simonmarcellinden/laravelmultiselect",
+    "description": "Multi Select Component with Vue",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Simon Marcel Linden",
+            "email": "inof@snerve.de"
+        }
+    ],
+    "homepage": "https://github.com/simonmarcellinden/LaravelMultiSelect",
+    "keywords": ["Laravel", "LaravelMultiSelect"],
+    "require": {
+        "illuminate/support": "~7|~8",
+        "simonmarcellinden/helperpackage": "^1.0.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~9.0",
+        "orchestra/testbench": "~5|~6"
+    },
+    "autoload": {
+        "psr-4": {
+            "SimonMarcelLinden\\LaravelMultiSelect\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "SimonMarcelLinden\\LaravelMultiSelect\\Tests\\": "tests"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "SimonMarcelLinden\\LaravelMultiSelect\\LaravelMultiSelectServiceProvider"
+            ],
+            "aliases": {
+                "LaravelMultiSelect": "SimonMarcelLinden\\LaravelMultiSelect\\Facades\\LaravelMultiSelect"
+            }
+        }
+    }
+}
