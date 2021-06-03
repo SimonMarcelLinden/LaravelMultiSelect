@@ -12,14 +12,12 @@
                 </div>
                 <div class="multiSelect__spinner" style="display: none;"></div>
                 <input name="labels" type="text" autocomplete="off" placeholder="Pick badges" tabindex="0" class="multiSelect__input" :style="multiSelect__input">
-                <span v-if="labelList" class="multiSelect__placeholder">Pick badges</span>
+                <span v-if="labelList.length === 0" class="multiSelect__placeholder">Pick badges</span>
             </div>
             <div tabindex="-1" class="multiSelect__content" :style="multiSelect__content">
                 <ul class="multiSelect__content-wrapper">
                     <li v-if="!!values" v-for="(item, index) in values" class="multiSelect__element">
-                        <span class="multiSelect__option"
-                              @mouseover="hover = index;"
-                              @mouseout="hover = false;"
+                        <span class="multiSelect__option" @mouseover="hover = index;" @mouseout="hover = false;"
 
                               :class="{'multiSelect__option--highlight': hover === index, 'multiSelect__option--selected': selected(item) === true }"
                               :key="index" @click="add( item )">
@@ -62,12 +60,10 @@ export default {
     },
     computed: {
         multiSelect__input: function (){
-            if( this.active && this.labelList)
-                return `width: 100%;`
-            else if( this.active )
-                return `width: 100%; position: absolute; padding: 0;`
+            if( this.tableValues || this.active)
+                return `width: 100%`
             else
-                return `width: 0;`
+                return `display: none;`
         },
         multiSelect__content: function (){
             if( this.active )
@@ -211,7 +207,10 @@ export default {
         margin      : {
             bottom  : 8px;
         }
-        padding     : 0 0 0 5px;
+        padding     : {
+            left    : 5px;
+            top     : 2px;
+        }
         border      : {
             style   : none;
             radius  : 5px;
@@ -298,6 +297,7 @@ export default {
         }
         padding : {
             top : 2px;
+            left: 5px;
         }
     }
     .multiSelect__option--highlight.multiSelect__option--selected {
