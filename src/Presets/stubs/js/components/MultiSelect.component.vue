@@ -149,7 +149,7 @@ export default {
             }
             padding     : 4px 26px 4px 10px;
             background  : {
-                color   : #41b883;
+                color   : #008eff;
             }
             border      : {
                 radius  : 5px;
@@ -180,10 +180,15 @@ export default {
                 transition  : all .2s ease;
                 border      : {
                     radius  : 5px;
+                    top     : {
+                        left-radius: 0;
+                    }
+                    bottom  : {
+                        left-radius: 0;
+                    }
                 }
                 &:after {
                     content     : "\D7";
-                    color       : #266d4d;
                     font-size   : 14px;
 
                 }
@@ -192,7 +197,7 @@ export default {
                         color   : #ffffff;
                     }
                     background  : {
-                        color   : #369a6e;
+                        color   : #006dc3;
                     }
                 }
             }
@@ -269,7 +274,7 @@ export default {
 
         &--highlight {
             background  : {
-                color   : #41b883;
+                color   : #008eff;
             };
             outline     : none;
             color       : #ffffff;
@@ -280,6 +285,17 @@ export default {
             }
             color       : #35495e;
             font-weight : 700;
+            &:before {
+                content     : "";
+                position    : absolute;
+                left        : 0;
+                top         : 0;
+                height      : 100%;
+                width       : 5px;
+                background  : {
+                    color   : #008eff;
+                }
+            }
         }
 
         .badge__name {
@@ -301,8 +317,10 @@ export default {
         }
     }
     .multiSelect__option--highlight.multiSelect__option--selected {
-        background: #ff6a6a;
-        color: #fff;
+        background  : {
+            color   : #9a9a9a;
+        }
+        color       : #fff;
     }
 
     &--active {
