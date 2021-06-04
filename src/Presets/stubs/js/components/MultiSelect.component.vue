@@ -136,7 +136,7 @@ export default {
         }
         font-size   : 14px;
         &-wrap{
-            display     : inline;
+            display     : inline-block;
         }
 
         .multiSelect__tag {
