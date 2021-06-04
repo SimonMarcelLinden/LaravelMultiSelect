@@ -11,12 +11,12 @@
                     </span>
                 </div>
                 <div class="multiSelect__spinner" style="display: none;"></div>
-                <input name="labels" type="text" autocomplete="off" placeholder="Pick badges" tabindex="0" class="multiSelect__input" :style="multiSelect__input">
+                <input name="labels" type="text" autocomplete="off" placeholder="Pick badges" tabindex="0" class="multiSelect__input" :style="multiSelect__input" v-model="search">
                 <span v-if="labelList.length === 0" class="multiSelect__placeholder">Pick badges</span>
             </div>
             <div tabindex="-1" class="multiSelect__content" :style="multiSelect__content">
                 <ul class="multiSelect__content-wrapper">
-                    <li v-if="!!values" v-for="(item, index) in values" class="multiSelect__element">
+                    <li v-if="!!values" v-for="(item, index) in filteredLabels" class="multiSelect__element">
                         <span class="multiSelect__option" @mouseover="hover = index;" @mouseout="hover = false;"
 
                               :class="{'multiSelect__option--highlight': hover === index, 'multiSelect__option--selected': selected(item) === true }"
@@ -41,17 +41,20 @@ export default {
     },
     data() {
         return {
-            labelList: [],
-            hover: false,
-            active: false,
+            labelList   : [],
+            search      : '',
+            hover       : false,
+            active      : false,
         }
     },
     methods: {
-        add: function ( label ) {
-            if(!this.selected(label))
+        add     : function ( label ) {
+            if(!this.selected(label)) {
                 this.labelList.push(label);
+                this.search = '';
+            }
         },
-        remove: function ( index ) {
+        remove  : function ( index ) {
             this.labelList.splice(index, 1)
         },
         selected: function ( item ) {
@@ -59,7 +62,8 @@ export default {
         }
     },
     computed: {
-        multiSelect__input: function (){
+        /** Computed styles **/
+        multiSelect__input  : function (){
             if( this.tableValues || this.active)
                 return `width: 100%`
             else
@@ -71,6 +75,12 @@ export default {
             else
                 return `display: none; max-height: 300px;`
 
+        },
+        /** Search Filter **/
+        filteredLabels: function () {
+            return this.values.filter(value => {
+                return value['label'].toLowerCase().includes(this.search.toLowerCase())
+            })
         }
     }
 
