@@ -4,7 +4,7 @@
         <div class="multiSelect-container">
             <div class="multiSelect__select"></div>
             <div class="multiSelect__tags">
-                <div class="multiSelect__tags-wrap">
+                <div class="multiSelect__tags-wrap" :style="multiSelect__tagsWrap">
                     <span v-for="(item, index) in labelList" class="multiSelect__tag">
                         <span>{{  item['label'] }}</span>
                         <i aria-hidden="true" tabindex="1" class="multiSelect__tag-icon" @click="remove( index )"></i>
@@ -12,13 +12,12 @@
                 </div>
                 <div class="multiSelect__spinner" style="display: none;"></div>
                 <input name="labels" type="text" autocomplete="off" placeholder="Pick badges" tabindex="0" class="multiSelect__input" :style="multiSelect__input" v-model="search">
-                <span v-if="labelList.length === 0" class="multiSelect__placeholder">Pick badges</span>
+                <span v-if="!this.active && labelList.length === 0" class="multiSelect__placeholder">Pick badges</span>
             </div>
             <div tabindex="-1" class="multiSelect__content" :style="multiSelect__content">
                 <ul class="multiSelect__content-wrapper">
                     <li v-if="!!values" v-for="(item, index) in filteredLabels" class="multiSelect__element">
                         <span class="multiSelect__option" @mouseover="hover = index;" @mouseout="hover = false;"
-
                               :class="{'multiSelect__option--highlight': hover === index, 'multiSelect__option--selected': selected(item) === true }"
                               :key="index" @click="add( item )">
                             <span class="badge__name">{{ item['label'] }}</span>
@@ -64,17 +63,20 @@ export default {
     computed: {
         /** Computed styles **/
         multiSelect__input  : function (){
-            if( this.tableValues || this.active)
+            if( !this.active)
+                return `display: none; width: 0px; position: absolute; padding: 0px;`
+            if( this.active)
                 return `width: 100%`
-            else
-                return `display: none;`
         },
         multiSelect__content: function (){
             if( this.active )
                 return `max-height: 300px;`
             else
                 return `display: none; max-height: 300px;`
-
+        },
+        multiSelect__tagsWrap: function (){
+            if( this.labelList.length === 0 )
+                return `display: none;`
         },
         /** Search Filter **/
         filteredLabels: function () {
@@ -236,6 +238,13 @@ export default {
         transition  : border .1s ease;
         box-sizing  : border-box;
         vertical-align: top;
+
+        &:active, &:visited, &:focus {
+            border : {
+                color: #a8a8a8
+            }
+            outline: none;
+        }
     }
     &__content {
         position    : absolute;
