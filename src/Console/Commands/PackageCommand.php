@@ -13,7 +13,7 @@ class PackageCommand extends Command {
      *
      * @var string
      */
-    protected $signature = 'multi-select:install';
+    protected $signature = 'multiSelect:install';
 
     /**
      * The console command description.

@@ -2,6 +2,13 @@
 
 All notable changes to `LaravelMultiSelect` will be documented in this file.
 
+## Version 1.1.2
+### Added
+- Usage information
+
+### Changed
+- Changed command for install
+
 ## Version 1.0
 
 ### Added
