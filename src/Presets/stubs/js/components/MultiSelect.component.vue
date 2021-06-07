@@ -123,6 +123,7 @@ export default {
             this.pointer = null
 
             if (this.closeOnSelect) this.deactivate()
+<<<<<<< HEAD
         },
         /**
          * Finds out if the given element is already present
@@ -157,6 +158,42 @@ export default {
             }
         },
         /**
+=======
+        },
+        /**
+         * Finds out if the given element is already present
+         * in the result value
+         * @param  {Object||String||Integer} option passed element to check
+         * @returns {Boolean} returns true if element is selected
+         */
+        isSelected      : function (option) {
+            // return this.labels.indexOf(option) > -1
+            return this.labels.includes( option );
+        },
+        /**
+         * Removes the given option from the selected options.
+         * Additionally checks this.allowEmpty prop if option can be removed when
+         * it is the last selected option.
+         *
+         * @param {Object||String||Integer} option description
+         * @param {boolean} shouldClose
+         * @returns {type}        description
+         */
+        removeElement   : function (option, shouldClose = true) {
+            const index = this.labels.indexOf(option);
+            this.labels.splice(index, 1)
+
+            if (this.closeOnSelect && shouldClose) this.deactivate()
+        },
+
+        highlight       : function (index, option) {
+            return {
+                'multiSelect__option--highlight': index === this.pointer,
+                'multiSelect__option--selected' : this.isSelected(option)
+            }
+        },
+        /**
+>>>>>>> 8142f4d0e05c47163bf7064f17b49cfa789d4f0e
          * Set the current pointer
          *
          * @param  {Integer} index to set current pointer

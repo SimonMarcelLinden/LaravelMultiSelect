@@ -17,7 +17,7 @@ All notable changes to `LaravelMultiSelect` will be documented in this file.
     * deactivate()
     * toggle()
     * select()
-    * isSelecte``d()
+    * isSelected()
     * removeElement()
     * highlight()
     * pointerSet()
