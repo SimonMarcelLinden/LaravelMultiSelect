@@ -1,33 +1,52 @@
 <template>
-    <div class="multiSelect"
-         :class="{'multiSelect--active' : active }" @click="active = !active" style="width: 350px; margin: 0 auto;">
+    <div class="multiSelect" :class="{'multiSelect--active' : isOpen }"
+         @blur="deactivate()"
+         @focus="activate()"
+         @keyup.esc="deactivate()"
+         role="combobox"
+         tabindex="-1"
+
+         style="width: 350px; margin: 0 auto;">
         <div class="multiSelect-container">
-            <div class="multiSelect__select"></div>
+            <div class="multiSelect__select" @mousedown.prevent.stop="toggle()"></div>
             <div class="multiSelect__tags">
-                <div class="multiSelect__tags-wrap" :style="multiSelect__tagsWrap">
-                    <span v-for="(item, index) in labelList" class="multiSelect__tag">
+                <div class="multiSelect__tags-wrap">
+                    <span v-for="(item, index) in labels" class="multiSelect__tag">
                         <span>{{  item['label'] }}</span>
-                        <i aria-hidden="true" tabindex="1" class="multiSelect__tag-icon" @click="remove( index )"></i>
+                        <i aria-hidden="true" tabindex="1" class="multiSelect__tag-icon"
+                           @keypress.enter.prevent="removeElement( item )"  @mousedown.prevent="removeElement( item )">
+                        </i>
                     </span>
                 </div>
                 <div class="multiSelect__spinner" style="display: none;"></div>
-                <input name="labels" type="text" autocomplete="off" placeholder="Pick badges" tabindex="0" class="multiSelect__input" :style="multiSelect__input" v-model="search">
-                <span v-if="!this.active && labelList.length === 0" class="multiSelect__placeholder">Pick badges</span>
+                <input name="labels" type="text" autocomplete="off" placeholder="Pick label" tabindex="0" class="multiSelect__input"
+                       :style="multiSelect__input" v-model="search" ref="search"
+                       @focus.prevent="activate()">
+                <span v-if="isPlaceholderVisible" class="multiSelect__placeholder">Pick label</span>
             </div>
-            <div tabindex="-1" class="multiSelect__content" :style="multiSelect__content">
-                <ul class="multiSelect__content-wrapper">
-                    <li v-if="!!values" v-for="(item, index) in filteredLabels" class="multiSelect__element">
-                        <span class="multiSelect__option" @mouseover="hover = index;" @mouseout="hover = false;"
-                              :class="{'multiSelect__option--highlight': hover === index, 'multiSelect__option--selected': selected(item) === true }"
-                              :key="index" @click="add( item )">
-                            <span class="badge__name">{{ item['label'] }}</span>
-                        </span>
-                    </li>
-                    <li v-else>
-                        <span class="multiSelect__option">List is empty.</span>
-                    </li>
-                </ul>
-            </div>
+            <transition name="fade">
+                <div v-if="isOpen" tabindex="-1" class="multiSelect__content">
+                    <ul class="multiSelect__content-wrapper">
+                        <li v-if="!!values" v-for="(item, index) in filteredValues" class="multiSelect__element">
+                            <span class="multiSelect__option"
+                                  :class="highlight(index, item)"
+                                  @click.stop="select(item)"
+                                  @mouseenter.self="pointerSet(index)"
+                                  :key="index">
+                                <span class="label__name">{{ item['label'] }}</span>
+                            </span>
+                        </li>
+                        <li v-if="showNoResults && (filteredValues.length === 0 && search)">
+                            <span class="multiselect__option">
+                                <span class="multiSelect__option" :search="search">No label found. Changing the search query.</span>
+                            </span>
+                        </li>
+                        <li v-if="isPlaceholderVisible">
+                            <span class="multiSelect__option">List is empty.</span>
+                        </li>
+                    </ul>
+                </div>
+            </transition>
         </div>
     </div>
 </template>
@@ -36,50 +55,129 @@
 export default {
     name: "MultiSelect",
     props: {
-        values: {},
+        values      : {
+            required: true,
+        },
+        preSelect   : {
+            required: false,
+        },
     },
     data() {
         return {
-            labelList   : [],
-            search      : '',
-            hover       : false,
-            active      : false,
+            labels          : this.preSelect ? this.preSelect : [],
+            search          : '',
+            pointer         : null,
+            isOpen          : false,
+            showNoResults   : true,
+            closeOnSelect   : true,
         }
     },
     methods: {
-        add     : function ( label ) {
-            if(!this.selected(label)) {
-                this.labelList.push(label);
-                this.search = '';
+        /**
+         * Opens the multiselect’s dropdown.
+         * Sets this.isOpen to TRUE
+         */
+        activate        : function () {
+            /* istanbul ignore else */
+            if (this.isOpen || this.disabled) return
+            this.isOpen = true
+
+            this.$nextTick(() => this.$refs.search && this.$refs.search.focus())
+        },
+        /**
+         * Closes the multiselect’s dropdown.
+         * Sets this.isOpen to FALSE
+         */
+        deactivate      : function () {
+            /* istanbul ignore else */
+            if (!this.isOpen) return
+            this.isOpen = false
+
+        },
+        /**
+         * Call this.activate() or this.deactivate()
+         * depending on this.isOpen value.
+         *
+         * @fires activate || this#deactivate
+         * @property {Boolean} isOpen indicates if dropdown is open
+         */
+        toggle          : function () {
+            this.isOpen ? this.deactivate() : this.activate()
+        },
+        /**
+         * Add the given option to the list of selected options
+         * or sets the option as the selected option.
+         * If option is already selected -> remove it from the results.
+         *
+         * @param  {Object||String||Integer} option to select|deselect
+         */
+        select          : function (option) {
+            const isSelected = this.isSelected( option )
+
+            if (isSelected) {
+                this.removeElement( option )
+                return
+            }
+            this.labels.push( option );
+
+            this.pointer = null
+
+            if (this.closeOnSelect) this.deactivate()
+        },
+        /**
+         * Finds out if the given element is already present
+         * in the result value
+         * @param  {Object||String||Integer} option passed element to check
+         * @returns {Boolean} returns true if element is selected
+         */
+        isSelected      : function (option) {
+            // return this.labels.indexOf(option) > -1
+            return this.labels.includes( option );
+        },
+        /**
+         * Removes the given option from the selected options.
+         * Additionally checks this.allowEmpty prop if option can be removed when
+         * it is the last selected option.
+         *
+         * @param {Object||String||Integer} option description
+         * @param {boolean} shouldClose
+         * @returns {type}        description
+         */
+        removeElement   : function (option, shouldClose = true) {
+            const index = this.labels.indexOf(option);
+            this.labels.splice(index, 1)
+
+            if (this.closeOnSelect && shouldClose) this.deactivate()
+        },
+
+        highlight       : function (index, option) {
+            return {
+                'multiSelect__option--highlight': index === this.pointer,
+                'multiSelect__option--selected' : this.isSelected(option)
             }
         },
-        remove  : function ( index ) {
-            this.labelList.splice(index, 1)
-        },
-        selected: function ( item ) {
-            return this.labelList.includes( item );
+        /**
+         * Set the current pointer
+         *
+         * @param  {Integer} index to set current pointer
+         */
+        pointerSet (index) {
+            this.pointer = index
         }
     },
     computed: {
         /** Computed styles **/
         multiSelect__input  : function (){
-            if( !this.active)
+            if( !this.isOpen)
                 return `display: none; width: 0px; position: absolute; padding: 0px;`
-            if( this.active)
-                return `width: 100%`
+            if( this.isOpen)
+                return `width: calc(100% - 5px - 2px)`
         },
-        multiSelect__content: function (){
-            if( this.active )
-                return `max-height: 300px;`
-            else
-                return `display: none; max-height: 300px;`
-        },
-        multiSelect__tagsWrap: function (){
-            if( this.labelList.length === 0 )
-                return `display: none;`
+        isPlaceholderVisible () {
+            return !this.labels.length && !this.isOpen;
         },
         /** Search Filter **/
-        filteredLabels: function () {
+        filteredValues: function () {
             return this.values.filter(value => {
                 return value['label'].toLowerCase().includes(this.search.toLowerCase())
             })
@@ -90,6 +188,19 @@ export default {
 </script>
 
 <style lang="scss">
+.fade-enter {
+    opacity: 0;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity .5s ease-out;
+}
+
+.fade-leave-to {
+    opacity: 0;
+}
+
 .multiSelect {
     * {
         box-sizing: border-box;
@@ -265,8 +376,27 @@ export default {
         }
         z-index     : 3;
         -webkit-overflow-scrolling: touch;
+
+        /* width */
+        &::-webkit-scrollbar {
+            width: 7px;
+        }
+        /* Track */
+        &::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        /* Handle */
+        &::-webkit-scrollbar-thumb {
+            background  : {
+                color   : #008eff;;
+            }
+        }
+        /* Handle on hover */
+        &::-webkit-scrollbar-thumb:hover {
+            background: #0074d0;
+        }
+
         &-wrapper {
-            display         : none;
             display         : inline-block;
             min-width       : 100%;
             margin          : 0;
@@ -317,7 +447,7 @@ export default {
             }
         }
 
-        .badge__name {
+        .label__name {
             display         : inline-block;
             margin-left     : 5px;
             vertical-align  : middle;

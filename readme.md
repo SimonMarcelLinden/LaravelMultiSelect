@@ -53,6 +53,14 @@ Add the following code snippet to your view
     <x-multiSelect :values="$labels" />
 ?>
 ```
+
+Or use the following code snippet to pre selected labels
+```php
+<?php 
+   <x-multiSelect :values="$values" :preSelect="$preSelect" />
+?>
+```
+
 And define in your controller the labels for displaying
 
 
