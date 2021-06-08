@@ -4,15 +4,13 @@
          @focus="activate()"
          @keyup.esc="deactivate()"
          role="combobox"
-         tabindex="-1"
-
-         style="width: 350px; margin: 0 auto;">
+         tabindex="-1">
         <div class="multiSelect-container">
             <div class="multiSelect__select" @mousedown.prevent.stop="toggle()"></div>
             <div class="multiSelect__tags">
                 <div class="multiSelect__tags-wrap">
-                    <span v-for="(item, index) in labels" class="multiSelect__tag">
-                        <span>{{  item['label'] }}</span>
+                    <span v-for="item in labels" class="multiSelect__tag">
+                        <span>{{  item['name'] }}</span>
                         <i aria-hidden="true" tabindex="1" class="multiSelect__tag-icon"
                            @keypress.enter.prevent="removeElement( item )"  @mousedown.prevent="removeElement( item )">
                         </i>
@@ -33,7 +31,7 @@
                                   @click.stop="select(item)"
                                   @mouseenter.self="pointerSet(index)"
                                   :key="index">
-                                <span class="label__name">{{ item['label'] }}</span>
+                                <span class="label__name">{{ item['name'] }}</span>
                             </span>
                         </li>
                         <li v-if="showNoResults && (filteredValues.length === 0 && search)">
@@ -123,7 +121,6 @@ export default {
             this.pointer = null
 
             if (this.closeOnSelect) this.deactivate()
-<<<<<<< HEAD
         },
         /**
          * Finds out if the given element is already present
@@ -132,8 +129,15 @@ export default {
          * @returns {Boolean} returns true if element is selected
          */
         isSelected      : function (option) {
-            // return this.labels.indexOf(option) > -1
-            return this.labels.includes( option );
+            let state = false
+
+            this.labels.filter(value => {
+                if( value['id'] === option['id'] && value['name'] === option['name'])
+                    state = true;
+            })
+
+            return state;
+            // return this.labels.includes( option );
         },
         /**
          * Removes the given option from the selected options.
@@ -150,7 +154,11 @@ export default {
 
             if (this.closeOnSelect && shouldClose) this.deactivate()
         },
-
+        /**
+         * @param {Integer} index
+         * @param {Object} option
+         * @returns {Array}
+         */
         highlight       : function (index, option) {
             return {
                 'multiSelect__option--highlight': index === this.pointer,
@@ -158,42 +166,6 @@ export default {
             }
         },
         /**
-=======
-        },
-        /**
-         * Finds out if the given element is already present
-         * in the result value
-         * @param  {Object||String||Integer} option passed element to check
-         * @returns {Boolean} returns true if element is selected
-         */
-        isSelected      : function (option) {
-            // return this.labels.indexOf(option) > -1
-            return this.labels.includes( option );
-        },
-        /**
-         * Removes the given option from the selected options.
-         * Additionally checks this.allowEmpty prop if option can be removed when
-         * it is the last selected option.
-         *
-         * @param {Object||String||Integer} option description
-         * @param {boolean} shouldClose
-         * @returns {type}        description
-         */
-        removeElement   : function (option, shouldClose = true) {
-            const index = this.labels.indexOf(option);
-            this.labels.splice(index, 1)
-
-            if (this.closeOnSelect && shouldClose) this.deactivate()
-        },
-
-        highlight       : function (index, option) {
-            return {
-                'multiSelect__option--highlight': index === this.pointer,
-                'multiSelect__option--selected' : this.isSelected(option)
-            }
-        },
-        /**
->>>>>>> 8142f4d0e05c47163bf7064f17b49cfa789d4f0e
          * Set the current pointer
          *
          * @param  {Integer} index to set current pointer
@@ -216,11 +188,10 @@ export default {
         /** Search Filter **/
         filteredValues: function () {
             return this.values.filter(value => {
-                return value['label'].toLowerCase().includes(this.search.toLowerCase())
+                return value['name'].toLowerCase().includes(this.search.toLowerCase())
             })
         }
     }
-
 }
 </script>
 

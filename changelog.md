@@ -2,6 +2,13 @@
 
 All notable changes to `LaravelMultiSelect` will be documented in this file.
 
+## [2.1.1] - 2021-06-08
+### Changed
+* Changed key access name from 'label' to 'name'
+* isSelected()
+###Removed
+* Removed failed merge conflict comments
+
 ## [2.1.0] - 2021-06-07
 ### Added
 * PreSelected labels. Pass an array to preselected labels.
